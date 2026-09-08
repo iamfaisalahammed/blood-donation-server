@@ -1,3 +1,6 @@
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
 const express = require("express");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
@@ -15,11 +18,11 @@ app.use(
       "https://blood-donation-69994.firebaseapp.com",
     ],
     credentials: true,
-  })
+  }),
 );
 app.use(express.json());
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.h13ev.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.qq6y6.mongodb.net/?appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -33,14 +36,15 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
+    await client.connect();
+    await client.db("admin").command({ ping: 1 });
+    console.log(" MongoDB Connected Successfully");
 
     //!------------------------DB__COLLECTION-------------------------------
 
     const userCollection = client.db("BloodDB").collection("users");
     const recipientCollection = client.db("BloodDB").collection("recipient");
     const donorCollection = client.db("BloodDB").collection("donor");
-    const fundCollection = client.db("BloodDB").collection("fund");
     const blogCollection = client.db("BloodDB").collection("blog");
     const donorsCollection = client.db("BloodDB").collection("donors");
     //? --------------JWT---------------
@@ -266,7 +270,7 @@ async function run() {
       const result = await recipientCollection.updateOne(
         filter,
         updatedDoc,
-        options
+        options,
       );
 
       res.send(result);
@@ -283,7 +287,7 @@ async function run() {
       const result = await recipientCollection.updateOne(
         filter,
         updatedDoc,
-        options
+        options,
       );
 
       res.send(result);
@@ -376,17 +380,6 @@ async function run() {
       res.json(donors);
     });
 
-    // !--------------------------fund-------------------------------------
-    app.post("/fund", async (req, res) => {
-      const fund = req.body;
-      const result = await fundCollection.insertOne(fund);
-      res.send(result);
-    });
-    // ------------all-get--------
-    app.get("/fund", async (req, res) => {
-      const result = await fundCollection.find().toArray();
-      res.send(result);
-    });
   } finally {
   }
 }
