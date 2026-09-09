@@ -37,8 +37,8 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    await client.db("admin").command({ ping: 1 });
-    console.log(" MongoDB Connected Successfully");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(" MongoDB Connected Successfully");
 
     //!------------------------DB__COLLECTION-------------------------------
 
@@ -187,9 +187,12 @@ async function run() {
     //------- limit----
     app.get("/myDonor", async (req, res) => {
       const email = req.query.email;
-      const query = { email: email };
-      const cursor = donorCollection.find(query).sort({ date: -1 });
-      const result = await cursor.toArray();
+
+      const result = await donorCollection
+        .find({ donorEmail: email })
+        .sort({ date: -1 })
+        .toArray();
+
       res.send(result);
     });
     app.get("/MyDonations", async (req, res) => {
@@ -379,7 +382,6 @@ async function run() {
       const donors = await donorsCollection.find(query).toArray();
       res.json(donors);
     });
-
   } finally {
   }
 }
